@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Executor - Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(45deg, #220044, #0a0022);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            margin-top: 50px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #00aaff;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .buttons button:hover {
+            background: #0088cc;
+        }
+        .toggle-links {
+            margin-top: 20px;
+            font-size: 1em;
+        }
+        .toggle-links a {
+            color: #00aaff;
+            text-decoration: none;
+        }
+        .toggle-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="new-username">Username</label>
+                <input type="text" id="new-username" placeholder="Choose a username" required>
+            </div>
+            <div class="form-group">
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="new-password">Password</label>
+                <input type="password" id="new-password" placeholder="Choose a password" required>
+            </div>
+            <div class="buttons">
+                <button type="submit">Sign Up</button>
+            </div>
+            <div class="toggle-links">
+                <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+            </div>
+        </form>
+
+        <form id="login-form" style="display: none;">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+            </div>
+            <div class="buttons">
+                <button type="submit">Login</button>
+            </div>
+            <div class="toggle-links">
+                <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up here</a></p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <!-- Firebase Authentication SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+    <!-- Firebase Firestore SDK (Optional, for storing extra user data) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwkQP6SvTHKlcuLhFWtakK_BEWaCgX7Bg",
+            authDomain: "loginsignup-4efca.firebaseapp.com",
+            projectId: "loginsignup-4efca",
+            storageBucket: "loginsignup-4efca.appspot.com",
+            messagingSenderId: "74937116136",
+            appId: "1:74937116136:web:f9092417668d4702f2305d",
+            measurementId: "G-NFFCWVDDW7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the auth service
+        const auth = firebase.auth();
+
+        // Get a reference to the Firestore service (if needed)
+        const db = firebase.firestore();
+
+        // Handle signup form submission
+        document.getElementById('signup-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get form values
+            const username = document.getElementById('new-username').value;
+            const email = document.getElementById('new-email').value;
+            const password = document.getElementById('new-password').value;
+
+            // Sign up the user with Firebase Authentication
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    console.log('User signed up:', user);
+
+                    // Optionally, save additional user info in Firestore
+                    return db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: email
+                    });
+                })
+                .then(() => {
+                    console.log('User data saved to Firestore');
+                    alert('Signup successful!');
+                })
+                .catch((error) => {
+                    console.error('Error signing up:', error.message);
+                    alert('Error signing up: ' + error.message);
+                });
+        });
+
+        // Handle login form submission (if you want to implement login)
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get form values
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Sign in the user with Firebase Authentication
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    console.log('User logged in:', user);
+                    alert('Login successful!');
+                })
+                .catch((error) => {
+                    console.error('Error logging in:', error.message);
+                    alert('Error logging in: ' + error.message);
+                });
+        });
+
+        // Show the login form
+        function showLogin() {
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+
+        // Show the signup form
+        function showSignup() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
